@@ -3,11 +3,17 @@ require 'wordchain/version'
 
 module Wordchain
   class Dictionary
+    attr_reader :entries
+
     extend Forwardable
     def_delegators :entries, :size, :include?, :empty?
 
-    def entries
-      @entries ||= Dictionary.entries_from_system
+    def initialize(entries: Dictionary.entries_from_system)
+      @entries = entries
+    end
+
+    def refine_entries(&blk)
+      Dictionary.new(entries: entries.select(&blk))
     end
 
     def self.entries_from_system
@@ -19,7 +25,10 @@ module Wordchain
 
   class Chain
     def initialize(start_with:, end_with:, dictionary:)
-      @dictionary = dictionary
+      raise "Starting and ending words in the chain must be same length" unless start_with.length == end_with.length
+
+      @dictionary = dictionary.refine_entries { |word| word.length == start_with.length }
+
       @start_with = start_with
       @end_with = end_with
     end
@@ -31,7 +40,10 @@ module Wordchain
 
       until current_word == final_word
         chain << current_word
-        current_word = candidates_for(current_word).min_by { |w| letters_different(w, final_word) }
+        candidates = candidates_for(current_word)
+        next_word = candidates.min_by { |w| letters_different(w, final_word) }
+        raise "no matching candidate words for #{current_word}" unless next_word
+        current_word = next_word
       end
 
       chain << current_word
@@ -53,16 +65,5 @@ module Wordchain
       end
       differences
     end
-
-    # def edit_distance_between(word_a, word_b)
-    # end
-
-
-    # def candidates_for(word)
-    #   # 1-edit distance away!
-    # end
-
-    # def edit_distance_between(word_a, word_b)
-    # end
   end
 end

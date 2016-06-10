@@ -26,24 +26,34 @@ describe Chain do
   subject(:chain) do
     Chain.new(
       dictionary: dictionary,
-      start_with: 'ruby', end_with: 'code'
+      start_with: start_with, end_with: end_with
     ) 
   end
 
   context 'with a simple dictionary' do
     let(:dictionary) do
-      instance_double(Dictionary, entries: %w[ cat bat bug rug star stag ruby rubs coal robs rods rode code cord ])
+      Dictionary.new(entries: %w[ star stag ruby rubs coal robs rods rode code cord ])
     end
 
+    let(:start_with) { 'ruby' }
+    let(:end_with) { 'code' }
+
     it 'should find candidates for next element of chain' do
-      expect(chain.candidates_for('cat')).to eql(['bat'])
-      expect(chain.candidates_for('bug')).to eql(['rug'])
       expect(chain.candidates_for('star')).to eql(['stag'])
       expect(chain.candidates_for('boat')).to eql([])
     end
 
     it 'should assemble the chain' do
       expect(subject.construct).to eq(%w[ ruby rubs robs rods rode code ])
+    end
+  end
+
+  context 'with a real dictionary' do
+    let(:dictionary) { Dictionary.new }
+    let(:start_with) { 'lead' }
+    let(:end_with) { 'gold' }
+    it 'should assemble the chain' do
+      expect(subject.construct).to eq(%w[ lead load goad gold ])
     end
   end
 end
