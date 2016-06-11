@@ -26,8 +26,9 @@ describe Chain do
   subject(:chain) do
     Chain.new(
       dictionary: dictionary,
-      start_with: start_with, end_with: end_with
-    ) 
+      start_with: start_with) #.to(end_with)
+    #   end_with: end_with
+    # )
   end
 
   context 'with a simple dictionary' do
@@ -44,16 +45,27 @@ describe Chain do
     end
 
     it 'should assemble the chain' do
-      expect(subject.construct).to eq(%w[ ruby rubs robs rods rode code ])
+      expect(chain.to(end_with)).to eq(%w[ ruby rubs robs rods rode code ])
     end
   end
 
   context 'with a real dictionary' do
     let(:dictionary) { Dictionary.new }
-    let(:start_with) { 'lead' }
-    let(:end_with) { 'gold' }
-    it 'should assemble the chain' do
-      expect(subject.construct).to eq(%w[ lead load goad gold ])
+
+    context 'lead into gold' do
+      let(:start_with) { 'lead' }
+      let(:end_with) { 'gold' }
+      it 'should assemble the chain' do
+        expect(chain.to(end_with)).to eq(%w[ lead load goad gold ])
+      end
+    end
+
+    context 'from cat to dog' do
+      let(:start_with) { 'cat' }
+      let(:end_with) { 'dog' }
+      it 'should assemble the chain' do
+        expect(chain.to(end_with)).to eq(%w[ cat cag cog dog ])
+      end
     end
   end
 end
