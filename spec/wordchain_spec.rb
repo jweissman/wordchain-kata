@@ -24,28 +24,31 @@ end
 
 describe Chain do
   subject(:chain) do
-    Chain.new(
-      dictionary: dictionary,
-      start_with: start_with) #.to(end_with)
-    #   end_with: end_with
-    # )
+    Chain.new(dictionary: dictionary, root_word: root_word)
   end
 
   context 'with a simple dictionary' do
     let(:dictionary) do
-      Dictionary.new(entries: %w[ star stag ruby rubs coal robs rods rode code cord ])
+      Dictionary.new(entries: simple_entries)
     end
 
-    let(:start_with) { 'ruby' }
-    let(:end_with) { 'code' }
+    let(:root_word) { 'okay' }
+
+    let(:simple_entries) do
+      %w[ star stag ruby rubs coal robs rods rode code cord ]
+    end
 
     it 'should find candidates for next element of chain' do
-      expect(chain.candidates_for('star')).to eql(['stag'])
-      expect(chain.candidates_for('boat')).to eql([])
+      expect(chain.send(:candidates_for,'star')).to eql(['stag'])
+      expect(chain.send(:candidates_for,'boat')).to eql([])
     end
 
-    it 'should assemble the chain' do
-      expect(chain.to(end_with)).to eq(%w[ ruby rubs robs rods rode code ])
+    context 'from ruby to code' do
+      let(:root_word) { 'ruby' }
+      let(:final_word) { 'code' }
+      it 'should assemble the chain' do
+        expect(chain.to(final_word)).to eq(%w[ ruby rubs robs rods rode code ])
+      end
     end
   end
 
@@ -53,7 +56,7 @@ describe Chain do
     let(:dictionary) { Dictionary.new }
 
     context 'lead into gold' do
-      let(:start_with) { 'lead' }
+      let(:root_word) { 'lead' }
       let(:end_with) { 'gold' }
       it 'should assemble the chain' do
         expect(chain.to(end_with)).to eq(%w[ lead load goad gold ])
@@ -61,7 +64,7 @@ describe Chain do
     end
 
     context 'from cat to dog' do
-      let(:start_with) { 'cat' }
+      let(:root_word) { 'cat' }
       let(:end_with) { 'dog' }
       it 'should assemble the chain' do
         expect(chain.to(end_with)).to eq(%w[ cat cag cog dog ])
